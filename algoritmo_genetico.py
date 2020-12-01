@@ -28,7 +28,6 @@ import numpy as np
 import random
 import operator
 import pandas as pd
-import matplotlib.pyplot as plt
 
 
 ################################################

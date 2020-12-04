@@ -40,10 +40,13 @@ import pandas as pd
 
 ################################################
 # Creamos la clase City, esto lo podemos usar para otros metodos que 
-# resuelvan el problema del viajero
+# resuelvan el problema del viajero. Le ponemos un índice a fin de poder 
+# comparar la ruta inicial con la ruta final con los índices, no con las 
+# coordenadas en sí
 
 class City:
-    def __init__(self, x, y):
+    def __init__(self, x, y, i):
+        self.Indice = i
         self.x = x
         self.y = y
     # Calculamos la distancia entre esta ciudad y otra ciudad 'city'
@@ -274,20 +277,28 @@ def nextGeneration(currentGen, eliteSize, mutationRate):
 # Necesita la población inicial, su tamaño, la tasa de "buenas" rutas con 
 # las que nos queremos quedar y la probabilidad en la que intercambiamos las
 # ciudades y la cantidad de generaciones que queremos crear.
-def geneticAlgorithm(population, popSize, eliteSize, mutationRate, generations):
-    pop = initialPopulation(popSize, population)
-    print("Initial distance: " + str(1 / rankRoutes(pop)[0][1]))
     
-    for i in range(0, generations):
-        pop = nextGeneration(pop, eliteSize, mutationRate)
+class geneticAlogrithm:
+    def __init__(self, population, popSize, eliteSize, mutationRate, generations):
+        self.population = population
+        self.popSize = popSize
+        self.eliteSize = eliteSize
+        self.mutationRate = mutationRate
+        self.generations = generations
+     
+    def perform(self):
+        pop = initialPopulation(self.popSize, self.population)
+        print("Initial distance: " + str(1 / rankRoutes(pop)[0][1]))
+        distances = []
+        for i in range(0, self.generations):
+            pop = nextGeneration(pop, self.eliteSize, self.mutationRate)
+            distances.append(1 / rankRoutes(pop)[0][1])
+        print("Final distance: " + str(1 / rankRoutes(pop)[0][1]))
+        bestRouteIndex = rankRoutes(pop)[0][0]
+        bestRoute = pop[bestRouteIndex]
+        return {'best_Route': bestRoute, 'Distances': distances}
     
-    print("Final distance: " + str(1 / rankRoutes(pop)[0][1]))
-    bestRouteIndex = rankRoutes(pop)[0][0]
-    bestRoute = pop[bestRouteIndex]
-    return bestRoute
 
-
-
-
+  
 
 

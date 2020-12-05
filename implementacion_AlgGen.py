@@ -8,10 +8,9 @@
 
 import algoritmo_genetico as algG
 import pandas as pd
-#import folium
-#from folium import plugins
-#import folium.plugins
 import time
+import seaborn as sns
+import random
 
 
 ################################################
@@ -19,48 +18,18 @@ import time
 
 
 ListaCiudades = pd.read_csv("Qatar.csv")
+
 ListaCiudades.drop_duplicates(subset=None, keep='first', inplace=False)
 
 # Las convertimos a unidades adecuadas para poder graficar en el mapa
 ListaCiudades['Latitud'] = ListaCiudades['Latitud']/1000
 ListaCiudades['Longitud'] = ListaCiudades['Longitud']/1000
 
-# Para graficar usamos folium y lo guardamos en un documento html
-# si no lo hacemos así, no lo vamos a poder abrir después
-        
-#latitude = 25.3
-#longitude = 51.51
-
-#Quatar_mapOpt = folium.Map(location=[latitude, longitude], zoom_start=10)
-#Quatar_mapInit = Quatar_mapOpt
-# Quatar_map.save("Quatar.html")
-
-# Le ponemos los puntitos de las ciudades consideradas
-
-# instantiate a feature group for the incidents in the dataframe
-#ciudades = folium.map.FeatureGroup()
-
-# loop through the 100 crimes and add each to the incidents feature group
-#for lat, lng, in zip(ListaCiudades.Latitud, ListaCiudades.Longitud):
-#    ciudades.add_child(
-#        folium.features.CircleMarker(
-#            [lat, lng],
-#            radius=5, # define how big you want the circle markers to be
-#            color='yellow',
-#            fill=True,
-#            fill_color='blue',
-#            fill_opacity=0.6
-#        )
-#    )
-
-# add incidents to map
-#Quatar_mapOpt.add_child(ciudades)
-#Quatar_mapInit.add_child(ciudades)
-#Quatar_mapOpt.save("Quatar.html")
 
 
 
-
+################################################
+################################################
 ################################################
 # Ahora sí usamos el algoritmo genético
 
@@ -72,44 +41,344 @@ for k in range(0,n_Ciudades):
     ListaCoordenadas.append(algG.City(x=ListaCiudades.Latitud[k], y=ListaCiudades.Longitud[k], i = ListaCiudades.Ciudad[k] ))
 
 
+################################################
+    # 100 iteraciones
+
+random.seed(23) # Ponemos la semilla para poder comparar los resultados
+
 tic = time.clock()
 Algoritmo_usado = algG.geneticAlogrithm(population=ListaCoordenadas, 
                                         popSize=100, eliteSize=20, 
-                                        mutationRate=0.01, generations=500)
+                                        mutationRate=0.01, generations=100)
 Mejor_Ruta = Algoritmo_usado.perform()
 toc = time.clock()
-
 print(toc-tic)
 
-# Agregamos la mejor ruta al mapa con líneas
-place_lat_opt = []
-place_lng_opt = []
-place_lat_init = []
-place_lng_init = []
-for i in range(0, 193):
-    place_lat_opt.append( Mejor_Ruta[i].x )
-    place_lng_opt.append( Mejor_Ruta[i].y )
-    place_lat_init.append( ListaCiudades.Latitud[i] )
-    place_lng_init.append( ListaCiudades.Longitud[i] )
+# Ahora para visualizar los resultados
+# Primero obtenemos el orden en el que van las ciudades
+
+optimal_Order = []
+
+for i in range(len(Mejor_Ruta['best_Route'])):
+    optimal_Order.append( ListaCoordenadas.index(Mejor_Ruta['best_Route'][i]) )
 
 
-points_opt = []
-points_init = []
-for i in range(len(place_lat_opt)):
-    points_opt.append([place_lat_opt[i], place_lng_opt[i]])
-    points_init.append([place_lat_init[i], place_lng_init[i]])
+
+dat = {'Iteracion': list(range(0, 100)) , 'Distancia': Mejor_Ruta['Distances']}
+
+dat = pd.DataFrame(dat)
+
+sns.set_style("whitegrid")
+a = sns.set_palette(sns.color_palette(['#573572' ]))
+grafica_algGen_Distancias = sns.scatterplot(
+    data=dat,
+    x="Iteracion", y="Distancia", palette=a, s = 20, linewidth=0)
+
+grafica_algGen_Distancias.set_title('Algoritmo Genético 100 iteraciones, 14.18 seg')
 
 
-uno_o = points_opt[1]
 
 
-    
-folium.PolyLine(exp_o, color='red').add_to(Quatar_mapOpt)
 
-folium.PolyLine(exp_i, color='red').add_to(Quatar_mapInit)
-    
 
-Quatar_mapOpt.save("Quatar_Ruta_Optima.html")
-Quatar_mapInit.save("Quatar_Init.html")
+################################################
+    # 150 iteraciones
+
+random.seed(23) # Ponemos la semilla para poder comparar los resultados
+
+tic = time.clock()
+Algoritmo_usado = algG.geneticAlogrithm(population=ListaCoordenadas, 
+                                        popSize=100, eliteSize=20, 
+                                        mutationRate=0.01, generations=150)
+Mejor_Ruta = Algoritmo_usado.perform()
+toc = time.clock()
+print(toc-tic)
+
+# Ahora para visualizar los resultados
+# Primero obtenemos el orden en el que van las ciudades
+
+optimal_Order = []
+
+for i in range(len(Mejor_Ruta['best_Route'])):
+    optimal_Order.append( ListaCoordenadas.index(Mejor_Ruta['best_Route'][i]) )
+
+
+
+dat = {'Iteracion': list(range(0,150)) , 'Distancia': Mejor_Ruta['Distances']}
+
+sns.set_style("whitegrid")
+a = sns.set_palette(sns.color_palette(['#713572' ]))
+grafica_algGen_Distancias = sns.scatterplot(
+    data=dat,
+    x="Iteracion", y="Distancia", palette=a, s = 20, linewidth=0)
+
+grafica_algGen_Distancias.set_title('Algoritmo Genético 150 iteraciones, 20.50 seg')
+
+
+
+
+################################################
+    # 200 iteraciones
+
+random.seed(23) # Ponemos la semilla para poder comparar los resultados
+
+tic = time.clock()
+Algoritmo_usado = algG.geneticAlogrithm(population=ListaCoordenadas, 
+                                        popSize=100, eliteSize=20, 
+                                        mutationRate=0.01, generations=200)
+Mejor_Ruta = Algoritmo_usado.perform()
+toc = time.clock()
+print(toc-tic)
+
+# Ahora para visualizar los resultados
+# Primero obtenemos el orden en el que van las ciudades
+
+optimal_Order = []
+
+for i in range(len(Mejor_Ruta['best_Route'])):
+    optimal_Order.append( ListaCoordenadas.index(Mejor_Ruta['best_Route'][i]) )
+
+
+
+dat = {'Iteracion': list(range(0,200)) , 'Distancia': Mejor_Ruta['Distances']}
+
+dat = pd.DataFrame(dat)
+
+
+sns.set_style("whitegrid")
+a = sns.set_palette(sns.color_palette(['#72355a' ]))
+grafica_algGen_Distancias = sns.scatterplot(
+    data=dat,
+    x="Iteracion", y="Distancia", palette=a, s = 20, linewidth=0)
+
+grafica_algGen_Distancias.set_title('Algoritmo Genético 200 iteraciones, 27.18 seg')
+
+
+
+
+
+################################################
+    # 250 iteraciones
+
+random.seed(23) # Ponemos la semilla para poder comparar los resultados
+
+tic = time.clock()
+Algoritmo_usado = algG.geneticAlogrithm(population=ListaCoordenadas, 
+                                        popSize=100, eliteSize=20, 
+                                        mutationRate=0.01, generations=250)
+Mejor_Ruta = Algoritmo_usado.perform()
+toc = time.clock()
+print(toc-tic)
+
+# Ahora para visualizar los resultados
+# Primero obtenemos el orden en el que van las ciudades
+
+optimal_Order = []
+
+for i in range(len(Mejor_Ruta['best_Route'])):
+    optimal_Order.append( ListaCoordenadas.index(Mejor_Ruta['best_Route'][i]) )
+
+
+
+dat = {'Iteracion': list(range(0,250)) , 'Distancia': Mejor_Ruta['Distances']}
+
+dat = pd.DataFrame(dat)
+
+sns.set_style("whitegrid")
+a = sns.set_palette(sns.color_palette(['#47b4bb' ]))
+grafica_algGen_Distancias = sns.scatterplot(
+    data=dat,
+    x="Iteracion", y="Distancia", palette=a, s = 10, linewidth=0)
+
+grafica_algGen_Distancias.set_title('Algoritmo Genético 250 iteraciones, 27.18 seg')
+
+
+
+
+
+
+
+
+################################################
+    # 300 iteraciones
+
+random.seed(23) # Ponemos la semilla para poder comparar los resultados
+
+tic = time.clock()
+Algoritmo_usado = algG.geneticAlogrithm(population=ListaCoordenadas, 
+                                        popSize=100, eliteSize=20, 
+                                        mutationRate=0.01, generations=300)
+Mejor_Ruta = Algoritmo_usado.perform()
+toc = time.clock()
+print(toc-tic)
+
+# Ahora para visualizar los resultados
+# Primero obtenemos el orden en el que van las ciudades
+
+optimal_Order = []
+
+for i in range(len(Mejor_Ruta['best_Route'])):
+    optimal_Order.append( ListaCoordenadas.index(Mejor_Ruta['best_Route'][i]) )
+
+
+
+dat = {'Iteracion': list(range(0,300)) , 'Distancia': Mejor_Ruta['Distances']}
+
+dat = pd.DataFrame(dat)
+
+
+sns.set_style("whitegrid")
+a = sns.set_palette(sns.color_palette(['#214a97' ]))
+grafica_algGen_Distancias = sns.scatterplot(
+    data=dat,
+    x="Iteracion", y="Distancia", palette=a, s = 10, linewidth=0)
+
+grafica_algGen_Distancias.set_title('Algoritmo Genético 300 iteraciones, 41.46 seg')
+
+
+
+
+################################################
+    # 350 iteraciones
+
+random.seed(23) # Ponemos la semilla para poder comparar los resultados
+
+tic = time.clock()
+Algoritmo_usado = algG.geneticAlogrithm(population=ListaCoordenadas, 
+                                        popSize=100, eliteSize=20, 
+                                        mutationRate=0.01, generations=350)
+Mejor_Ruta = Algoritmo_usado.perform()
+toc = time.clock()
+print(toc-tic)
+
+# Ahora para visualizar los resultados
+# Primero obtenemos el orden en el que van las ciudades
+
+optimal_Order = []
+
+for i in range(len(Mejor_Ruta['best_Route'])):
+    optimal_Order.append( ListaCoordenadas.index(Mejor_Ruta['best_Route'][i]) )
+
+
+
+dat = {'Iteracion': list(range(0,350)) , 'Distancia': Mejor_Ruta['Distances']}
+
+dat = pd.DataFrame(dat)
+
+sns.set_style("whitegrid")
+a = sns.set_palette(sns.color_palette(['#152e76' ]))
+grafica_algGen_Distancias = sns.scatterplot(
+    data=dat,
+    x="Iteracion", y="Distancia", palette=a, s = 10, linewidth=0)
+
+grafica_algGen_Distancias.set_title('Algoritmo Genético 350 iteraciones, 47.15 seg')
+
+
+
+
+
+################################################
+    # 400 iteraciones
+
+random.seed(23) # Ponemos la semilla para poder comparar los resultados
+
+tic = time.clock()
+Algoritmo_usado = algG.geneticAlogrithm(population=ListaCoordenadas, 
+                                        popSize=100, eliteSize=20, 
+                                        mutationRate=0.01, generations=400)
+Mejor_Ruta = Algoritmo_usado.perform()
+toc = time.clock()
+print(toc-tic)
+
+# Ahora para visualizar los resultados
+# Primero obtenemos el orden en el que van las ciudades
+
+optimal_Order = []
+
+for i in range(len(Mejor_Ruta['best_Route'])):
+    optimal_Order.append( ListaCoordenadas.index(Mejor_Ruta['best_Route'][i]) )
+
+
+
+dat = {'Iteracion': list(range(0,400)) , 'Distancia': Mejor_Ruta['Distances']}
+
+dat = pd.DataFrame(dat)
+
+sns.set_style("whitegrid")
+a = sns.set_palette(sns.color_palette(['#154d76' ]))
+grafica_algGen_Distancias = sns.scatterplot(
+    data=dat,
+    x="Iteracion", y="Distancia", palette=a, s = 10, linewidth=0)
+
+grafica_algGen_Distancias.set_title('Algoritmo Genético 400 iteraciones, 55.39 seg')
+
+
+
+
+
+################################################
+    # 450 iteraciones
+
+random.seed(23) # Ponemos la semilla para poder comparar los resultados
+
+tic = time.clock()
+Algoritmo_usado = algG.geneticAlogrithm(population=ListaCoordenadas, 
+                                        popSize=100, eliteSize=20, 
+                                        mutationRate=0.01, generations=450)
+Mejor_Ruta = Algoritmo_usado.perform()
+toc = time.clock()
+print(toc-tic)
+
+# Ahora para visualizar los resultados
+# Primero obtenemos el orden en el que van las ciudades
+
+optimal_Order = []
+
+for i in range(len(Mejor_Ruta['best_Route'])):
+    optimal_Order.append( ListaCoordenadas.index(Mejor_Ruta['best_Route'][i]) )
+
+
+
+dat = {'Iteracion': list(range(0,450)) , 'Distancia': Mejor_Ruta['Distances']}
+
+dat = pd.DataFrame(dat)
+
+sns.set_style("whitegrid")
+a = sns.set_palette(sns.color_palette(['#156976' ]))
+grafica_algGen_Distancias = sns.scatterplot(
+    data=dat,
+    x="Iteracion", y="Distancia", palette=a, s = 10, linewidth=0)
+
+grafica_algGen_Distancias.set_title('Algoritmo Genético 450 iteraciones, 60.56 seg')
+
+
+
+
+################################################
+################################################
+################################################
+# Con esta semilla, el minimo es en la iteracion 257, entonces sacamos esa ruta
+
+random.seed(23) # Ponemos la semilla para poder comparar los resultados
+
+Algoritmo_usado = algG.geneticAlogrithm(population=ListaCoordenadas, 
+                                        popSize=100, eliteSize=20, 
+                                        mutationRate=0.01, generations=257)
+Mejor_Ruta = Algoritmo_usado.perform()
+
+indices_ruta_opt = []
+
+for i in range(len(Mejor_Ruta['best_Route'])):
+    indices_ruta_opt.append( ListaCoordenadas.index(Mejor_Ruta['best_Route'][i] ) )
+
+
+indices_ruta_opt
+
+
+
+
+################################################
+################################################
+################################################
 
 

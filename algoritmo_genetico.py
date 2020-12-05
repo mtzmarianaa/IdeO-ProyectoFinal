@@ -299,6 +299,6 @@ class geneticAlogrithm:
         return {'best_Route': bestRoute, 'Distances': distances}
     
 
-  
+
 
 
